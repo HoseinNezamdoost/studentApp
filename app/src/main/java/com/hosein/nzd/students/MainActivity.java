@@ -1,24 +1,23 @@
 package com.hosein.nzd.students;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     RequestQueue requestQueue;
     List<Student> students = new ArrayList<>();
     RecyclerView recyclerView;
+    ExtendedFloatingActionButton addNewStudent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ProgressBar progressBar = findViewById(R.id.progress);
+        addNewStudent = findViewById(R.id.add_student_main);
+
+        addNewStudent.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this , AddNewStudentActivity.class));
+        });
 
         StringRequest request = new StringRequest(Request.Method.GET, "https://hosein-nzd.ir/android_app/student/getStudent.php",
                 new Response.Listener<String>() {
