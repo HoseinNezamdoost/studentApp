@@ -19,6 +19,11 @@ public class AdapterStudent extends RecyclerView.Adapter<AdapterStudent.StudentV
         this.students = students;
     }
 
+    public void addStudent(Student student){
+        this.students.add(0 , student);
+        notifyItemInserted(0);
+    }
+
     @NonNull
     @Override
     public StudentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

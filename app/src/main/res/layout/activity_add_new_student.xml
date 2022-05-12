@@ -36,7 +36,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/firstName_edt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -50,7 +51,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/lastName_edt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -64,7 +66,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/course_edt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,7 +81,9 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/score_edt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
+                android:inputType="number"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -1,10 +1,12 @@
 package com.hosein.nzd.students;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -33,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     List<Student> students = new ArrayList<>();
     RecyclerView recyclerView;
     ExtendedFloatingActionButton addNewStudent;
+    AdapterStudent adapterStudent;
+    public static final Integer REGISTER_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         addNewStudent = findViewById(R.id.add_student_main);
 
         addNewStudent.setOnClickListener(view -> {
-            startActivity(new Intent(MainActivity.this , AddNewStudentActivity.class));
+            startActivityForResult(new Intent(MainActivity.this , AddNewStudentActivity.class) , REGISTER_CODE);
         });
 
         StringRequest request = new StringRequest(Request.Method.GET, "https://hosein-nzd.ir/android_app/student/getStudent.php",
@@ -73,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
                             progressBar.setVisibility(View.GONE);
                             recyclerView = findViewById(R.id.recycler_student);
                             recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , RecyclerView.VERTICAL , false));
-                            recyclerView.setAdapter(new AdapterStudent(students));
+                            adapterStudent = new AdapterStudent(students);
+                            recyclerView.setAdapter(adapterStudent);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -92,6 +97,15 @@ public class MainActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(request);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if (requestCode == REGISTER_CODE && resultCode == Activity.RESULT_OK){
+            adapterStudent.addStudent(data.getParcelableExtra("studentObject"));
+            recyclerView.smoothScrollToPosition(0);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
