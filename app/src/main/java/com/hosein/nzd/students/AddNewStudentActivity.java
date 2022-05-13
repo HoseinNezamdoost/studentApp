@@ -27,14 +27,14 @@ public class AddNewStudentActivity extends AppCompatActivity {
     ExtendedFloatingActionButton saveStudentFab;
     TextInputEditText firstName , lastName , course , score;
     private static final String TAG = "AddNewStudentActivity";
-    RequestQueue requestQueue;
+    ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_student);
 
-        requestQueue = Volley.newRequestQueue(this);
+        apiService = new ApiService(this);
 
         firstName = findViewById(R.id.firstName_edt);
         lastName = findViewById(R.id.lastName_edt);
@@ -52,45 +52,22 @@ public class AddNewStudentActivity extends AppCompatActivity {
 
             if (firstName.length() > 0 && lastName.length() > 0 && course.length() > 0 && score.length() > 0) {
 
-                JSONObject jsonObject = new JSONObject();
-                try {
-                    jsonObject.put("firstName", firstName.getText().toString());
-                    jsonObject.put("lastName" , lastName.getText().toString());
-                    jsonObject.put("course" , course.getText().toString());
-                    jsonObject.put("score" , score.getText().toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST , "https://hosein-nzd.ir/android_app/student/putStudent.php", jsonObject,
-                        new Response.Listener<JSONObject>() {
+                apiService.postStudentInformation(firstName.getText().toString(),
+                        lastName.getText().toString(), course.getText().toString(),
+                        score.getText().toString(), new ApiService.getStudentAdded() {
                             @Override
-                            public void onResponse(JSONObject response) {
-                                Log.i(TAG, "onResponse: " + response);
-                                Toast.makeText(AddNewStudentActivity.this, "add student is successfully!", Toast.LENGTH_LONG).show();
-                                Student student = new Student();
-                                try {
-                                    student.setFirstName(response.getString("firstName"));
-                                    student.setLastName(response.getString("lastName"));
-                                    student.setCourse(response.getString("course"));
-                                    student.setScore(response.getInt("score"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                            public void onSuccess(Student student) {
                                 Intent intent = new Intent();
                                 intent.putExtra("studentObject" , student);
-                                setResult(Activity.RESULT_OK, intent);
+                                setResult(Activity.RESULT_OK , intent);
                                 finish();
                             }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse: ", error);
-                    }
-                });
 
-                requestQueue.add(jsonObjectRequest);
-
+                            @Override
+                            public void onError(VolleyError error) {
+                                Toast.makeText(AddNewStudentActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
+                            }
+                        });
 
             }else {
                 Toast.makeText(this, " items is empty ! ", Toast.LENGTH_LONG).show();

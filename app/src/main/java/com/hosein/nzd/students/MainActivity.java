@@ -31,17 +31,19 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    RequestQueue requestQueue;
-    List<Student> students = new ArrayList<>();
     RecyclerView recyclerView;
     ExtendedFloatingActionButton addNewStudent;
     AdapterStudent adapterStudent;
     public static final Integer REGISTER_CODE = 1001;
+    ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        apiService = new ApiService(this);
+        recyclerView = findViewById(R.id.recycler_student);
 
         Toolbar toolbar = findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
@@ -53,50 +55,22 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(new Intent(MainActivity.this , AddNewStudentActivity.class) , REGISTER_CODE);
         });
 
-        StringRequest request = new StringRequest(Request.Method.GET, "https://hosein-nzd.ir/android_app/student/getStudent.php",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                Student student = new Student();
-                                student.setFirstName(jsonObject.getString("firstName"));
-                                student.setLastName(jsonObject.getString("lastName"));
-                                student.setCourse(jsonObject.getString("course"));
-                                student.setScore(jsonObject.getInt("score"));
-                                student.setId(jsonObject.getInt("id"));
-
-                                students.add(student);
-
-                            }
-
-                            progressBar.setVisibility(View.GONE);
-                            recyclerView = findViewById(R.id.recycler_student);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , RecyclerView.VERTICAL , false));
-                            adapterStudent = new AdapterStudent(students);
-                            recyclerView.setAdapter(adapterStudent);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Toast.makeText(MainActivity.this,"1"+ e.getMessage(), Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
+        apiService.getStudent(new ApiService.listStudentCallBack() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "2"+error.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onSuccess(List<Student> students) {
+                adapterStudent = new AdapterStudent(students);
+                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , LinearLayoutManager.VERTICAL , false));
+                recyclerView.setAdapter(adapterStudent);
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(MainActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
                 progressBar.setVisibility(View.GONE);
             }
         });
 
-        requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(request);
     }
 
     @Override
