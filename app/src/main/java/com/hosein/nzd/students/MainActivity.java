@@ -13,21 +13,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(new Intent(MainActivity.this , AddNewStudentActivity.class) , REGISTER_CODE);
         });
 
-        apiService.getStudent(new ApiService.listStudentCallBack() {
+        apiService.getStudentInformation(new ApiService.listStudentCallBack() {
             @Override
             public void onSuccess(List<Student> students) {
                 adapterStudent = new AdapterStudent(students);

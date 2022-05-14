@@ -9,6 +9,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,16 +22,23 @@ import java.util.List;
 public class ApiService {
 
     RequestQueue requestQueue;
+    Gson gson;
     public static final String BASE_URL = "https://hosein-nzd.ir/android_app/student/";
     public static final String GET_STUDENT_URL = "getStudent.php";
     public static final String POST_STUDENT_URL = "putStudent.php";
 
+    //--------------------------------------------------------------------constructor-------------------------------------------------------------------
+
     public ApiService(Context context) {
         if (requestQueue == null)
         requestQueue = Volley.newRequestQueue(context.getApplicationContext());
+        //---------------
+        gson = new Gson();
     }
 
-    public void getStudent(listStudentCallBack callBack){
+    //------------------------------------------------------------------getStudentInformation---------------------------------------------------------------------
+
+    public void getStudentInformation(listStudentCallBack callBack){
 
         List<Student> students = new ArrayList<>();
 
@@ -37,26 +46,8 @@ public class ApiService {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                Student student = new Student();
-                                student.setFirstName(jsonObject.getString("firstName"));
-                                student.setLastName(jsonObject.getString("lastName"));
-                                student.setCourse(jsonObject.getString("course"));
-                                student.setScore(jsonObject.getInt("score"));
-                                student.setId(jsonObject.getInt("id"));
-
-                                students.add(student);
-                            }
-
-                            callBack.onSuccess(students);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        List<Student> students = gson.fromJson(response , new TypeToken<List<Student>>(){}.getType());
+                        callBack.onSuccess(students);
                     }
                 },
                 new Response.ErrorListener() {
@@ -68,6 +59,8 @@ public class ApiService {
 
         requestQueue.add(request);
     }
+
+    //--------------------------------------------------------------------postStudentInformation-------------------------------------------------------------------
 
     public void postStudentInformation(String firstName , String lastName , String course , String  score , getStudentAdded getStudentAdded){
 
@@ -85,16 +78,10 @@ public class ApiService {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Student student = new Student();
-                        try {
-                            student.setFirstName(response.getString("firstName"));
-                            student.setLastName(response.getString("lastName"));
-                            student.setCourse(response.getString("course"));
-                            student.setScore(response.getInt("score"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+
+                        Student student = gson.fromJson(response.toString() , Student.class);
                         getStudentAdded.onSuccess(student);
+
                     }
                 },
                 new Response.ErrorListener() {
@@ -106,6 +93,8 @@ public class ApiService {
 
         requestQueue.add(jsonObjectRequest);
     }
+
+    //------------------------------------------------------------interfaces---------------------------------------------------------------------------
 
     public interface listStudentCallBack{
         void onSuccess(List<Student> students);
