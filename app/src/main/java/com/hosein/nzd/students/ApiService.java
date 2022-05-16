@@ -40,14 +40,13 @@ public class ApiService {
 
     public void getStudentInformation(listStudentCallBack callBack){
 
-        List<Student> students = new ArrayList<>();
-
-        StringRequest request = new StringRequest(Request.Method.GET, BASE_URL + GET_STUDENT_URL,
-                new Response.Listener<String>() {
+        GsonRequest<List<Student>> request = new GsonRequest<>(Request.Method.GET, BASE_URL + GET_STUDENT_URL,
+                new TypeToken<List<Student>>() {
+                }.getType(),
+                new Response.Listener<List<Student>>() {
                     @Override
-                    public void onResponse(String response) {
-                        List<Student> students = gson.fromJson(response , new TypeToken<List<Student>>(){}.getType());
-                        callBack.onSuccess(students);
+                    public void onResponse(List<Student> response) {
+                        callBack.onSuccess(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -62,7 +61,7 @@ public class ApiService {
 
     //--------------------------------------------------------------------postStudentInformation-------------------------------------------------------------------
 
-    public void postStudentInformation(String firstName , String lastName , String course , String  score , getStudentAdded getStudentAdded){
+    public void postStudentInformation(String firstName , String lastName , String course , String  score , getStudentAdded callBack){
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -74,24 +73,21 @@ public class ApiService {
             e.printStackTrace();
         }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BASE_URL + POST_STUDENT_URL, jsonObject,
-                new Response.Listener<JSONObject>() {
+        GsonRequest<Student> studentGsonRequest = new GsonRequest<>(Request.Method.POST, BASE_URL + POST_STUDENT_URL, Student.class,
+                jsonObject,
+                new Response.Listener<Student>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-
-                        Student student = gson.fromJson(response.toString() , Student.class);
-                        getStudentAdded.onSuccess(student);
-
+                    public void onResponse(Student response) {
+                        callBack.onSuccess(response);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        getStudentAdded.onError(error);
+                        callBack.onError(error);
                     }
                 });
-
-        requestQueue.add(jsonObjectRequest);
+        requestQueue.add(studentGsonRequest);
     }
 
     //------------------------------------------------------------interfaces---------------------------------------------------------------------------
