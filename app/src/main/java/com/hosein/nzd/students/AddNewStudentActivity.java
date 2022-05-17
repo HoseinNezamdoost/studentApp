@@ -52,7 +52,7 @@ public class AddNewStudentActivity extends AppCompatActivity {
 
             if (firstName.length() > 0 && lastName.length() > 0 && course.length() > 0 && score.length() > 0) {
 
-                apiService.postStudentInformation(firstName.getText().toString(),
+                /*apiService.postStudentInformation(firstName.getText().toString(),
                         lastName.getText().toString(), course.getText().toString(),
                         score.getText().toString(), new ApiService.getStudentAdded() {
                             @Override
@@ -65,6 +65,23 @@ public class AddNewStudentActivity extends AppCompatActivity {
 
                             @Override
                             public void onError(VolleyError error) {
+                                Toast.makeText(AddNewStudentActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
+                            }
+                        });*/
+
+                apiService.postStudentInformation_RETROFIT(firstName.getText().toString(),
+                        lastName.getText().toString(), course.getText().toString(),
+                        score.getText().toString(), new ApiService.getStudentAdded_RETROFIT() {
+                            @Override
+                            public void onSuccess(Student student) {
+                                Intent intent = new Intent();
+                                intent.putExtra("studentObject" , student);
+                                setResult(Activity.RESULT_OK , intent);
+                                finish();
+                            }
+
+                            @Override
+                            public void onError(Exception error) {
                                 Toast.makeText(AddNewStudentActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
                             }
                         });

@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(new Intent(MainActivity.this , AddNewStudentActivity.class) , REGISTER_CODE);
         });
 
-        apiService.getStudentInformation(new ApiService.listStudentCallBack() {
+       /* apiService.getStudentInformation(new ApiService.listStudentCallBack() {
             @Override
             public void onSuccess(List<Student> students) {
                 adapterStudent = new AdapterStudent(students);
@@ -55,6 +55,22 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(VolleyError error) {
+
+            }
+        });
+*/
+
+        apiService.getStudentInformation_RETROFIT(new ApiService.listStudentCallBack_RETROFIT() {
+            @Override
+            public void onSuccess(List<Student> students) {
+                adapterStudent = new AdapterStudent(students);
+                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , LinearLayoutManager.VERTICAL , false));
+                recyclerView.setAdapter(adapterStudent);
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(Exception error) {
                 Toast.makeText(MainActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
                 progressBar.setVisibility(View.GONE);
             }

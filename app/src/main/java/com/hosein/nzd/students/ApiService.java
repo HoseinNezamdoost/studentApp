@@ -10,6 +10,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
@@ -19,6 +20,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class ApiService {
 
     RequestQueue requestQueue;
@@ -27,6 +33,9 @@ public class ApiService {
     public static final String GET_STUDENT_URL = "getStudent.php";
     public static final String POST_STUDENT_URL = "putStudent.php";
 
+    Retrofit retrofit;
+    RetrofitApiService retrofitApiService;
+
     //--------------------------------------------------------------------constructor-------------------------------------------------------------------
 
     public ApiService(Context context) {
@@ -34,6 +43,10 @@ public class ApiService {
         requestQueue = Volley.newRequestQueue(context.getApplicationContext());
         //---------------
         gson = new Gson();
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
     }
 
     //------------------------------------------------------------------getStudentInformation---------------------------------------------------------------------
@@ -89,6 +102,44 @@ public class ApiService {
                 });
         requestQueue.add(studentGsonRequest);
     }
+    //------------------------------------------------------------retrofit---------------------------------------------------------------------------
+    public void getStudentInformation_RETROFIT(listStudentCallBack_RETROFIT callBack){
+        retrofit.create(RetrofitApiService.class).getStudentInformation().enqueue(new Callback<List<Student>>() {
+            @Override
+            public void onResponse(Call<List<Student>> call, retrofit2.Response<List<Student>> response) {
+                callBack.onSuccess(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<Student>> call, Throwable t) {
+                callBack.onError(new Exception(t));
+            }
+        });
+    }
+
+    //------------------------------------------------------------retrofit---------------------------------------------------------------------------
+
+    public void postStudentInformation_RETROFIT(String firstName , String lastName , String course , String  score , getStudentAdded_RETROFIT callBack){
+
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("firstName", firstName);
+            jsonObject.addProperty("lastName" , lastName);
+            jsonObject.addProperty("course" , course);
+            jsonObject.addProperty("score" , score);
+
+            retrofit.create(RetrofitApiService.class).postStudentInformation(jsonObject).enqueue(new Callback<Student>() {
+                @Override
+                public void onResponse(Call<Student> call, retrofit2.Response<Student> response) {
+                    callBack.onSuccess(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<Student> call, Throwable t) {
+                    callBack.onError(new Exception(t));
+                }
+            });
+
+    }
 
     //------------------------------------------------------------interfaces---------------------------------------------------------------------------
 
@@ -100,6 +151,16 @@ public class ApiService {
     public interface getStudentAdded{
         void onSuccess(Student student);
         void onError(VolleyError error);
+    }
+
+    public interface listStudentCallBack_RETROFIT{
+        void onSuccess(List<Student> students);
+        void onError(Exception error);
+    }
+
+    public interface getStudentAdded_RETROFIT{
+        void onSuccess(Student student);
+        void onError(Exception error);
     }
 
 }
