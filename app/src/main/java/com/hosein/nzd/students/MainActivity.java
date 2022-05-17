@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.volley.VolleyError;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        apiService = new ApiService(this);
+        apiService = new ApiService();
         recyclerView = findViewById(R.id.recycler_student);
 
         Toolbar toolbar = findViewById(R.id.toolbar_main);
@@ -60,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         });
 */
 
-        apiService.getStudentInformation_RETROFIT(new ApiService.listStudentCallBack_RETROFIT() {
+        apiService.getStudentInformation(new ApiService.listStudentCallBack() {
             @Override
             public void onSuccess(List<Student> students) {
                 adapterStudent = new AdapterStudent(students);
