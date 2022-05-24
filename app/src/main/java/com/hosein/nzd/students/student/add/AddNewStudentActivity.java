@@ -1,4 +1,4 @@
-package com.hosein.nzd.students;
+package com.hosein.nzd.students.student.add;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.hosein.nzd.students.R;
+import com.hosein.nzd.students.model.ApiService;
+import com.hosein.nzd.students.model.Student;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -22,7 +25,7 @@ public class AddNewStudentActivity extends AppCompatActivity {
     ExtendedFloatingActionButton saveStudentFab;
     TextInputEditText firstName , lastName , course , score;
     private static final String TAG = "AddNewStudentActivity";
-    ApiService apiService;
+    AddStudentViewModel addStudentViewModel;
     Disposable disposable;
 
     @Override
@@ -30,7 +33,7 @@ public class AddNewStudentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_student);
 
-        apiService = new ApiService();
+        addStudentViewModel = new AddStudentViewModel(new ApiService());
 
         firstName = findViewById(R.id.firstName_edt);
         lastName = findViewById(R.id.lastName_edt);
@@ -48,7 +51,7 @@ public class AddNewStudentActivity extends AppCompatActivity {
 
             if (firstName.length() > 0 && lastName.length() > 0 && course.length() > 0 && score.length() > 0) {
 
-                apiService.postStudentInformation(firstName.getText().toString(),
+                addStudentViewModel.saveStudent(firstName.getText().toString(),
                         lastName.getText().toString(), course.getText().toString(),
                         score.getText().toString())
                         .subscribeOn(Schedulers.io())

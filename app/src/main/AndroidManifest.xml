@@ -13,11 +13,11 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Students">
         <activity
-            android:name=".AddNewStudentActivity"
+            android:name=".student.add.AddNewStudentActivity"
             android:exported="false"
             android:label="Add New Student" />
         <activity
-            android:name=".MainActivity"
+            android:name=".main.MainActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>

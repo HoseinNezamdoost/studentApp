@@ -1,4 +1,4 @@
-package com.hosein.nzd.students;
+package com.hosein.nzd.students.main;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +14,17 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.hosein.nzd.students.student.add.AddNewStudentActivity;
+import com.hosein.nzd.students.R;
+import com.hosein.nzd.students.model.ApiService;
+import com.hosein.nzd.students.model.Student;
 
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -30,15 +34,15 @@ public class MainActivity extends AppCompatActivity {
     ExtendedFloatingActionButton addNewStudent;
     AdapterStudent adapterStudent;
     public static final Integer REGISTER_CODE = 1001;
-    ApiService apiService;
-    Disposable disposable;
+    MainViewModel mainViewModel;
+    CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        apiService = new ApiService();
+        mainViewModel = new MainViewModel(new ApiService());
         recyclerView = findViewById(R.id.recycler_student);
 
         Toolbar toolbar = findViewById(R.id.toolbar_main);
@@ -48,24 +52,27 @@ public class MainActivity extends AppCompatActivity {
         addNewStudent = findViewById(R.id.add_student_main);
 
         addNewStudent.setOnClickListener(view -> {
-            startActivityForResult(new Intent(MainActivity.this , AddNewStudentActivity.class) , REGISTER_CODE);
+            startActivityForResult(new Intent(MainActivity.this, AddNewStudentActivity.class), REGISTER_CODE);
         });
 
-        apiService.getStudentInformation()
+        disposable.add(mainViewModel.getProgressbarSubject()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(aBoolean -> progressBar.setVisibility(aBoolean ? View.VISIBLE : View.GONE)));
+
+        mainViewModel.students()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<Student>>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
-                        disposable = d;
+                        disposable.add(d);
                     }
 
                     @Override
                     public void onSuccess(@NonNull List<Student> students) {
                         adapterStudent = new AdapterStudent(students);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , LinearLayoutManager.VERTICAL , false));
+                        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
                         recyclerView.setAdapter(adapterStudent);
-                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -79,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if (requestCode == REGISTER_CODE && resultCode == Activity.RESULT_OK){
+        if (requestCode == REGISTER_CODE && resultCode == Activity.RESULT_OK) {
             adapterStudent.addStudent(data.getParcelableExtra("studentObject"));
             recyclerView.smoothScrollToPosition(0);
         }
@@ -89,6 +96,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        disposable.dispose();
+        disposable.clear();
     }
 }

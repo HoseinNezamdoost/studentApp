@@ -1,11 +1,10 @@
-package com.hosein.nzd.students;
+package com.hosein.nzd.students.model;
 
 import com.google.gson.JsonObject;
 
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Single;
-import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;

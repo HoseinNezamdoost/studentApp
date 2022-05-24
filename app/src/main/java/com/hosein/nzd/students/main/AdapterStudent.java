@@ -1,4 +1,4 @@
-package com.hosein.nzd.students;
+package com.hosein.nzd.students.main;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.hosein.nzd.students.R;
+import com.hosein.nzd.students.model.Student;
 
 import java.util.ArrayList;
 import java.util.List;
