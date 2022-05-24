@@ -17,6 +17,13 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
@@ -24,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     AdapterStudent adapterStudent;
     public static final Integer REGISTER_CODE = 1001;
     ApiService apiService;
+    Disposable disposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,37 +51,28 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(new Intent(MainActivity.this , AddNewStudentActivity.class) , REGISTER_CODE);
         });
 
-       /* apiService.getStudentInformation(new ApiService.listStudentCallBack() {
-            @Override
-            public void onSuccess(List<Student> students) {
-                adapterStudent = new AdapterStudent(students);
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , LinearLayoutManager.VERTICAL , false));
-                recyclerView.setAdapter(adapterStudent);
-                progressBar.setVisibility(View.GONE);
-            }
+        apiService.getStudentInformation()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<Student>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        disposable = d;
+                    }
 
-            @Override
-            public void onError(VolleyError error) {
+                    @Override
+                    public void onSuccess(@NonNull List<Student> students) {
+                        adapterStudent = new AdapterStudent(students);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , LinearLayoutManager.VERTICAL , false));
+                        recyclerView.setAdapter(adapterStudent);
+                        progressBar.setVisibility(View.GONE);
+                    }
 
-            }
-        });
-*/
-
-        apiService.getStudentInformation(new ApiService.listStudentCallBack() {
-            @Override
-            public void onSuccess(List<Student> students) {
-                adapterStudent = new AdapterStudent(students);
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this , LinearLayoutManager.VERTICAL , false));
-                recyclerView.setAdapter(adapterStudent);
-                progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onError(Exception error) {
-                Toast.makeText(MainActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
-                progressBar.setVisibility(View.GONE);
-            }
-        });
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Toast.makeText(MainActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
+                    }
+                });
 
     }
 
@@ -85,5 +84,11 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.smoothScrollToPosition(0);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disposable.dispose();
     }
 }

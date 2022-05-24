@@ -11,12 +11,19 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class AddNewStudentActivity extends AppCompatActivity {
 
     ExtendedFloatingActionButton saveStudentFab;
     TextInputEditText firstName , lastName , course , score;
     private static final String TAG = "AddNewStudentActivity";
     ApiService apiService;
+    Disposable disposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +50,18 @@ public class AddNewStudentActivity extends AppCompatActivity {
 
                 apiService.postStudentInformation(firstName.getText().toString(),
                         lastName.getText().toString(), course.getText().toString(),
-                        score.getText().toString(), new ApiService.getStudentAdded() {
+                        score.getText().toString())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<Student>() {
                             @Override
-                            public void onSuccess(Student student) {
+                            public void onSubscribe(@NonNull Disposable d) {
+                                disposable = d;
+                            }
+
+                            @Override
+                            public void onSuccess(@NonNull Student student) {
+                                saveStudentFab.setEnabled(false);
                                 Intent intent = new Intent();
                                 intent.putExtra("studentObject" , student);
                                 setResult(Activity.RESULT_OK , intent);
@@ -53,8 +69,8 @@ public class AddNewStudentActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onError(Exception error) {
-                                Toast.makeText(AddNewStudentActivity.this, "خطای نامشخص!", Toast.LENGTH_LONG).show();
+                            public void onError(@NonNull Throwable e) {
+                                Toast.makeText(AddNewStudentActivity.this, "خطای نامشخص!", Toast.LENGTH_SHORT).show();
                             }
                         });
 
@@ -68,5 +84,12 @@ public class AddNewStudentActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         finish();
         return super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (disposable != null)
+        disposable.dispose();
     }
 }

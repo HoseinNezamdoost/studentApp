@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -12,9 +13,9 @@ import retrofit2.http.POST;
 public interface RetrofitApiService {
 
     @GET("getStudent.php")
-    Call<List<Student>> getStudentInformation();
+    Single<List<Student>> getStudentInformation();
 
     @POST("putStudent.php")
-    Call<Student> postStudentInformation(@Body JsonObject body);
+    Single<Student> postStudentInformation(@Body JsonObject body);
 
 }
